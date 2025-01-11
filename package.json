@@ -1,9 +1,13 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
-  "private": true,
+  "main": "app.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "express": "^4.18.2",

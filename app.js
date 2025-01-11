@@ -7,9 +7,22 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Add production logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error', { error: err });
+});
+
 // Middleware
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
@@ -53,19 +66,7 @@ let tasks = [
 
 // Routes
 app.get('/', (req, res) => {
-
-  const sortedTasks = [...tasks].sort((a, b) => {
-    if (!a.dueDate) return 1;
-    if (!b.dueDate) return -1;
-    return new Date(a.dueDate) - new Date(b.dueDate);
-
-  });
-  
-  res.render('index', { 
-    tasks: sortedTasks,
-    formatDueDate,
-    format
-  });
+  res.render('index', { tasks: tasks });
 });
 
 app.post('/tasks', (req, res) => {
@@ -106,3 +107,5 @@ app.delete('/tasks/:id', (req, res) => {
 app.listen(port, () => {
   console.log(`Task manager app listening at http://localhost:${port}`);
 });
+
+module.exports = app;

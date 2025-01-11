@@ -1,0 +1,108 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
+const { format, isToday, isTomorrow, isYesterday } = require('date-fns');
+
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Middleware
+
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
+
+// Format date helper function
+function formatDueDate(date) {
+  if (!date) return '';
+  const dateObj = new Date(date);
+  if (isToday(dateObj)) return 'Today';
+  if (isTomorrow(dateObj)) return 'Tomorrow';
+  if (isYesterday(dateObj)) return 'Yesterday';
+  return format(dateObj, 'MMM d, yyyy');
+}
+
+
+
+// Store tasks in memory (in a real app, you'd use a database)
+
+
+let tasks = [
+  { 
+    id: 1, 
+    title: 'Complete project', 
+    status: 'pending', 
+    priority: 'high',
+    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),    // Tomorrow
+    createdAt: new Date()
+
+  },
+  { 
+    id: 2, 
+    title: 'Buy groceries', 
+    status: 'completed', 
+    priority: 'medium',
+    dueDate: new Date(),  // Today
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000)  //  Yesterday
+
+  }
+
+];
+
+// Routes
+app.get('/', (req, res) => {
+
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+    return new Date(a.dueDate) - new Date(b.dueDate);
+
+  });
+  
+  res.render('index', { 
+    tasks: sortedTasks,
+    formatDueDate,
+    format
+  });
+});
+
+app.post('/tasks', (req, res) => {
+
+  const newTask = {
+    id: tasks.length + 1,
+    title: req.body.title,
+    status: 'pending',
+    priority: req.body.priority,
+    dueDate: req.body.dueDate || null,
+    createdAt: new Date()
+
+  };
+  tasks.push(newTask);
+  res.redirect('/');
+
+});
+
+app.put('/tasks/:id', (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const task = tasks.find(t => t.id === taskId);
+
+  if (task) {
+
+    task.status = task.status === 'pending' ? 'completed' : 'pending';
+
+  }
+  res.redirect('/');
+});
+
+app.delete('/tasks/:id', (req, res) => {
+  
+  const taskId = parseInt(req.params.id);
+  tasks = tasks.filter(t => t.id !== taskId);
+  res.redirect('/');
+});
+
+app.listen(port, () => {
+  console.log(`Task manager app listening at http://localhost:${port}`);
+});

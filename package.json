@@ -1,10 +1,19 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
-  "main": "app.js",
-  "engines": {
-    "node": ">=14.0.0"
+  "description": "A modern, responsive web application for managing daily tasks with priority levels and due dates.",
+  "homepage": "https://github.com/SouravGiri-007/Task_Manager#readme",
+  "bugs": {
+    "url": "https://github.com/SouravGiri-007/Task_Manager/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SouravGiri-007/Task_Manager.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
